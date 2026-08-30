@@ -2,6 +2,7 @@
 #define LEXER_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 enum TokenType
 {
@@ -30,10 +31,10 @@ enum TokenType
 struct Token
 {
     TokenType type;
-    void *value; // can be unused.
+    void *value; // can be unused (must be NULL if not used).
 } typedef Token;
 
-
-Token lex(FILE *file);
+bool lexer_next(Token *token, FILE *file); // returns 'true' on success.
+void lexer_token_free(Token *token);
 
 #endif
