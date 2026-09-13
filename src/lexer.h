@@ -1,8 +1,10 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 enum TokenType
 {
@@ -15,8 +17,8 @@ enum TokenType
     TOKEN_KWTYPE_INT32,
     TOKEN_KWTYPE_UINT16,
 
-    TOKEN_OP_SET,
-    TOKEN_OP_PLUS,
+    TOKEN_EQUALS,
+    TOKEN_PLUS,
 
     TOKEN_SEMICOLON,
     TOKEN_LPAREN, // (
@@ -24,14 +26,27 @@ enum TokenType
     TOKEN_LBRACE, // {
     TOKEN_RBRACE, // }
 
-    TOKEN_IDENTIFIER,
     TOKEN_INTEGER_LITERAL,
+    TOKEN_STRING_LITERAL
 } typedef TokenType;
 
 struct Token
 {
+    // required fields:
     TokenType type;
-    void *value; // can be unused (must be NULL if not used).
+
+    /*
+    // optional fields:
+    void *value; // must be equal to NULL when unused.
+    size_t size;
+    */
+    union
+    {
+        //float f;
+        //uint64_t integer;
+        double number;
+        struct { void *data; size_t size; } bytearray;
+    } value;
 } typedef Token;
 
 bool lexer_next(Token *token, FILE *file); // returns 'true' on success.

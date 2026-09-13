@@ -3,62 +3,95 @@
 #include <stdlib.h>
 #include <string.h>
 
-bool lexer_next(Token *token, FILE *file)
+/*
+enum LargeLiteralType
 {
-    if (feof(file))
-    {
-        *token = (Token){ .type = TOKEN_EOF };
-        return true;
-    }
+    LLTYPE_
+} typedef LargeLiteralType;
+*/
 
-    /*
+bool lexer_next(Token *token, FILE *file)
+{   
     char *tok = NULL;
-    size_t size = 0;
-    while (true)
-    {
-        if (feof(file)) return (Token){ .type = TOKEN_EOF };
-        char c;
-        if (fread(&c, 1, 1, file) < 1); // im bored :(
-        
-        //char *
-    }
-
-    char *new_tok = realloc(tok, );
-    */
-
-    bool returnvalue = true;
-
-    char *tok = NULL;
-    size_t size = 0;
+    size_t toksz = 0;
+    TokenType toktype = TOKEN_UNKNOWN;
     while (true)
     {
         char c;
-        if (!fread(&c, 1, 1, file))
+        fread(&c, 1, 1, file);
+        if (ferror(file)) goto errorquit;
+        if (feof(file))
         {
-            free(tok);
-            if (feof(file))
-            {
+            
+        }
+
+        switch (toktype)
+        {
+            case TOKEN_STRING_LITERAL:
+                switch (c)
+                {
+                    case '"':
+                        c = '\0';
+
+                    default:
+                        char *new_tok = realloc(tok, toksz + 1);
+                        if (!new_tok) { free(tok); return false; }
+                        tok = new_tok;
+                        tok[toksz++] = c;
+
+                        if (!c) { *token = (Token){ .type = TOKEN_STRING_LITERAL, .value = tok }; return true; }
+                }
+
+            default:
+                switch (c)
+                {
+                    
+                    case '(':
+                        //if (tok) { toktype = }
+                        *token = (Token){ .type = TOKEN_LPAREN };
+                        return true;
+
+                    case ')':
+                        *token = (Token){ .type = TOKEN_RPAREN };
+                        return true;
+
+                    case '{':
+                        *token = (Token){ .type = TOKEN_LBRACE };
+                        return true;
+
+                    case '}':
+                        *token = (Token){ .type = TOKEN_RBRACE };
+                        return true;
+                }
+        }
+
+        /*
+        quit_largetokend:
+            fseek(file, -1, SEEK_CUR);
+            *token = (Token){ .type =  };
+            return true;
+        */
+    }
+
+    errorquit:
+        free(tok);
+    return false;
+
+    endliteralorEOF:
+        switch (toktype)
+        {
+            case TOKEN_STRING_LITERAL:
+                *token = (Token){ .type = TOKEN_STRING_LITERAL, .value = tok, .size = toksz };
+                return true;
+
+            case TOKEN_INTEGER_LITERAL:
+                *token = (Token){ .type = TOKEN_INTEGER_LITERAL, .value = (void *)toksz };
+                return true;
+
+            default:
                 *token = (Token){ .type = TOKEN_EOF };
                 return true;
-            }
-            return false;
         }
-
-        switch (c)
-        {
-            case '(':
-                
-        }
-        
-        {
-            register char *new_tok = realloc(tok, size + 1);
-            if (!new_tok) { free(tok); return false; }
-            tok = new_tok;
-        }
-    }
-
-    //free
-    //return 
 }
 
-void lexer_token_free(Token *token) { free(token->value); }
+void lexer_token_free(Token *token) { if (token->type == TOKEN_STRING_LITERAL) free(token->value); }
