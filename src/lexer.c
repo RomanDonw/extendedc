@@ -15,11 +15,13 @@ bool lexer_next(FILE *file, Token *token)
     while (true)
     {
         fread(&c, 1, 1, file);
-        if (feof(file)) { free(buffdata); goto handleEOF; }
         if (ferror(file)) { free(buffdata); return false; }
 
         if (state == TOKEN_STRING_LITERAL)
         {
+            if (feof(file)) { free(buffdata); return false; }
+
+            bool skipcheckprintable = false;
             switch (c)
             {
                 case '"':
@@ -33,8 +35,8 @@ bool lexer_next(FILE *file, Token *token)
 
                 case '\\':
                     fread(&c, 1, 1, file);
-                    if (feof(file)) { free(buffdata); goto handleEOF; }
-                    if (ferror(file)) { free(buffdata); return false; }
+                    if (feof(file) || ferror(file)) { free(buffdata); return false; }
+                    skipcheckprintable = true;
 
                     switch (c)
                     {
@@ -74,6 +76,13 @@ bool lexer_next(FILE *file, Token *token)
                             c = 27;
                             break;
 
+                        case '"':
+                            c = '"';
+                            break;
+
+                        case '/':
+                            continue;
+
                         default:
                             free(buffdata);
                             return false;
@@ -81,6 +90,8 @@ bool lexer_next(FILE *file, Token *token)
 
                 default:
                 {
+                    if (!(skipcheckprintable || isprint(c))) continue;
+
                     void *new = realloc(buffdata, buffsize + 1);
                     if (!new) { free(buffdata); return false; }
                     buffdata = new;
@@ -94,12 +105,13 @@ bool lexer_next(FILE *file, Token *token)
         }
         else
         {
+            if (feof(file)) { free(buffdata); goto handleEOF; }
             if (isspace(c)) continue;
             switch (c)
             {
                 case '"':
                     state = TOKEN_STRING_LITERAL;
-                    goto loop_continue;
+                    continue;
 
                 case '+':
                     *token = (Token){ .type = TOKEN_PLUS };
@@ -119,9 +131,6 @@ bool lexer_next(FILE *file, Token *token)
             }
             break;
         }
-
-        loop_continue:
-        continue;
     }
 
     free(buffdata);

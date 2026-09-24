@@ -1,1 +1,6 @@
-"this is an example string\nand this is the test of escape\tsequences\0" + 
+"this is an example string\nand this is the test of escape\tsequences\0" +
+"string \/
+without \/
+new \/
+lines \0
+"
