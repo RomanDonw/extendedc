@@ -58,12 +58,20 @@ bool lexer_next(FILE *file, Token *token)
                             c = 10;
                             break;
 
+                        case 'v':
+                            c = 11;
+                            break;
+
                         case 'f':
                             c = 12;
                             break;
 
                         case 'r':
                             c = 13;
+                            break;
+
+                        case 'e':
+                            c = 27;
                             break;
 
                         default:
