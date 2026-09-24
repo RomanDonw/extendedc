@@ -6,6 +6,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#if 0
+
 enum TokenType
 {
     TOKEN_UNKNOWN,
@@ -51,5 +53,30 @@ struct Token
 
 bool lexer_next(Token *token, FILE *file); // returns 'true' on success.
 void lexer_token_free(Token *token);
+
+#endif
+
+enum TokenType
+{
+    TOKEN_UNKNOWN,
+    TOKEN_EOF,
+
+    TOKEN_EQUALS,
+    TOKEN_PLUS,
+    TOKEN_MINUS,
+
+    TOKEN_LITERAL,
+    TOKEN_STRING_LITERAL
+} typedef TokenType;
+
+struct Token
+{
+    TokenType type;
+    
+    void *data;
+    size_t size;
+} typedef Token;
+
+bool lexer_next(FILE *file, Token *token);
 
 #endif
