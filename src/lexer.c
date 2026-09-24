@@ -90,7 +90,7 @@ bool lexer_next(FILE *file, Token *token)
 
                 default:
                 {
-                    if (!(skipcheckprintable || isprint(c))) continue;
+                    if (!(skipcheckprintable || isprint((unsigned char)c))) continue;
 
                     void *new = realloc(buffdata, buffsize + 1);
                     if (!new) { free(buffdata); return false; }
@@ -106,7 +106,7 @@ bool lexer_next(FILE *file, Token *token)
         else
         {
             if (feof(file)) { free(buffdata); goto handleEOF; }
-            if (isspace(c)) continue;
+            if (isspace((unsigned char)c)) continue;
             switch (c)
             {
                 case '"':
@@ -123,6 +123,18 @@ bool lexer_next(FILE *file, Token *token)
 
                 case '=':
                     *token = (Token){ .type = TOKEN_EQUALS };
+                    break;
+
+                case '*':
+                    *token = (Token){ .type = TOKEN_STAR };
+                    break;
+
+                case '/':
+                    *token = (Token){ .type = TOKEN_SLASH };
+                    break;
+
+                case '\\':
+                    *token = (Token){ .type = TOKEN_BACKSLASH };
                     break;
 
                 default:

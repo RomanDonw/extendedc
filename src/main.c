@@ -1,6 +1,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "lexer.h"
 
@@ -24,11 +25,52 @@ int main(int argc, char *argv[])
     if (!f) { printf("unable to open file \"%s\"\n", fname); return 1; }
 
     Token t;
-    while (lexer_next(f, &t))
+    for (lexer_next(f, &t); t.type != TOKEN_EOF; lexer_next(f, &t))
     {
-        if (t.type == TOKEN_EOF) { puts("reached EOF"); break; }
-        else if (t.type == TOKEN_STRING_LITERAL) { puts(t.data); free(t.data); }
-        else printf("%u\n", t.type);
+        switch (t.type)
+        {
+            case TOKEN_UNKNOWN:
+                puts("<UNKNOWN>");
+                break;
+
+            case TOKEN_EQUALS:
+                puts("=");
+                break;
+            
+            case TOKEN_PLUS:
+                puts("+");
+                break;
+
+            case TOKEN_MINUS:
+                puts("-");
+                break;
+
+            case TOKEN_STAR:
+                puts("*");
+                break;
+
+            case TOKEN_SLASH:
+                puts("/");
+                break;
+
+            case TOKEN_BACKSLASH:
+                puts("\\");
+                break;
+
+            case TOKEN_STRING_LITERAL:
+                printf("[%zu]: ", t.size);
+                bool reqln = false;
+                for (size_t i = 0; i < t.size; i++)
+                {
+                    unsigned char c = ((unsigned char *)t.data)[i];
+                    if (isprint(c)) { putchar(c); reqln = true; }
+                    else { printf("\n  %hhu\n", c); reqln = false; }
+                }
+                if (reqln) putchar('\n');
+
+                free(t.data);
+                break;
+        }
     }
 
     fclose(f);
