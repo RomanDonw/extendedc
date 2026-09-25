@@ -57,6 +57,34 @@ int main(int argc, char *argv[])
                 puts("\\");
                 break;
 
+            case TOKEN_LBRACE:
+                puts("{");
+                break;
+
+            case TOKEN_RBRACE:
+                puts("}");
+                break;
+
+            case TOKEN_LPAREN:
+                puts("(");
+                break;
+            
+            case TOKEN_RPAREN:
+                puts(")");
+                break;
+
+            case TOKEN_SEMICOLON:
+                puts(";");
+                break;
+
+            case TOKEN_DOT:
+                puts(".");
+                break;
+
+            case TOKEN_COMMA:
+                puts(",");
+                break;
+
             case TOKEN_STRING_LITERAL:
                 printf("[%zu]: ", t.size);
                 bool reqln = false;
@@ -68,6 +96,11 @@ int main(int argc, char *argv[])
                 }
                 if (reqln) putchar('\n');
 
+                free(t.data);
+                break;
+
+            case TOKEN_LITERAL:
+                printf("(%zu): %s\n", t.size, t.data);
                 free(t.data);
                 break;
         }

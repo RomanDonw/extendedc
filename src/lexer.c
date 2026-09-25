@@ -25,19 +25,12 @@ bool lexer_next(FILE *file, Token *token)
             switch (c)
             {
                 case '"':
-                    *token = (Token)
-                    {
-                        .type = TOKEN_STRING_LITERAL,
-                        .data = buffdata,
-                        .size = buffsize
-                    };
-                    return true;
+                    goto returnbuffer;
 
                 case '\\':
                     fread(&c, 1, 1, file);
                     if (feof(file) || ferror(file)) { free(buffdata); return false; }
-                    skipcheckprintable = true;
-
+                    
                     switch (c)
                     {
                         case '0':
@@ -87,26 +80,24 @@ bool lexer_next(FILE *file, Token *token)
                             free(buffdata);
                             return false;
                     }
+                    goto applybuffer;
 
                 default:
-                {
-                    if (!(skipcheckprintable || isprint((unsigned char)c))) continue;
-
-                    void *new = realloc(buffdata, buffsize + 1);
-                    if (!new) { free(buffdata); return false; }
-                    buffdata = new;
-                    buffdata[buffsize++] = c;
-                }
+                    if (isprint((unsigned char)c)) goto applybuffer;
             }
         }
         else if (state == TOKEN_LITERAL)
         {
-            
+            if (feof(file)) goto returnliteral;
+            if (!isalnum((unsigned char)c)) { fseek(file, -1, SEEK_CUR); goto returnliteral; }
+            goto applybuffer;
         }
         else
         {
             if (feof(file)) { free(buffdata); goto handleEOF; }
             if (isspace((unsigned char)c)) continue;
+            if (isalnum((unsigned char)c)) { state = TOKEN_LITERAL; goto applybuffer; };
+
             switch (c)
             {
                 case '"':
@@ -137,17 +128,69 @@ bool lexer_next(FILE *file, Token *token)
                     *token = (Token){ .type = TOKEN_BACKSLASH };
                     break;
 
+                case '{':
+                    *token = (Token){ .type = TOKEN_LBRACE };
+                    break;
+
+                case '}':
+                    *token = (Token){ .type = TOKEN_RBRACE };
+                    break;
+
+                case '(':
+                    *token = (Token){ .type = TOKEN_LPAREN };
+                    break;
+
+                case ')':
+                    *token = (Token){ .type = TOKEN_RPAREN };
+                    break;
+
+                case ';':
+                    *token = (Token){ .type = TOKEN_SEMICOLON };
+                    break;
+
+                case '.':
+                    *token = (Token){ .type = TOKEN_DOT };
+                    break;
+
+                case ',':
+                    *token = (Token){ .type = TOKEN_COMMA };
+                    break;
+
                 default:
                     *token = (Token){ .type = TOKEN_UNKNOWN };
                     break;
             }
             break;
         }
+        continue;
+
+        applybuffer:
+            void *new = realloc(buffdata, buffsize + 1);
+            if (!new) { free(buffdata); return false; }
+            buffdata = new;
+            buffdata[buffsize++] = c;
     }
 
     free(buffdata);
     return true;
+
     handleEOF:
         *token = (Token){ .type = TOKEN_EOF };
     return true;
+
+    returnbuffer:
+        *token = (Token)
+        {
+            .type = state,
+            .data = buffdata,
+            .size = buffsize
+        };
+    return true;
+
+    returnliteral:
+        void *new = realloc(buffdata, buffsize + 1);
+        if (!new) { free(buffdata); return false; }
+        buffdata = new;
+        buffdata[buffsize++] = '\0';
+    goto returnbuffer;
 }
