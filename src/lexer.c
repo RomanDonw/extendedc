@@ -154,6 +154,42 @@ bool lexer_next(FILE *file, Token *token)
                     *token = (Token){ .type = TOKEN_COMMA };
                     break;
 
+                case '<':
+                    *token = (Token){ .type = TOKEN_LT };
+                    break;
+
+                case '>':
+                    *token = (Token){ .type = TOKEN_GT };
+                    break;
+
+                case '!':
+                    *token = (Token){ .type = TOKEN_EXCL };
+                    break;
+
+                case '&':
+                    *token = (Token){ .type = TOKEN_AMP };
+                    break;
+
+                case '|':
+                    *token = (Token){ .type = TOKEN_PIPE };
+                    break;
+
+                case '%':
+                    *token = (Token){ .type = TOKEN_PREC };
+                    break;
+
+                case '^':
+                    *token = (Token){ .type = TOKEN_CIRCFLEX };
+                    break;
+
+                case ':':
+                    *token = (Token){ .type = TOKEN_COLON };
+                    break;
+
+                case '~':
+                    *token = (Token){ .type = TOKEN_TILDE };
+                    break;
+
                 default:
                     *token = (Token){ .type = TOKEN_UNKNOWN };
                     break;

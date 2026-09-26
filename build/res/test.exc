@@ -2,5 +2,9 @@ int32 main(void)
 {
     uint16 a = 5;
     uint16 b = 10;
+
+    if (a + b < 16) puts("a gay");
+    else puts("not a gay");
+
     return a + b;
 }

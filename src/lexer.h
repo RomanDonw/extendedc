@@ -24,6 +24,15 @@ enum TokenType
     TOKEN_SEMICOLON,
     TOKEN_DOT,
     TOKEN_COMMA,
+    TOKEN_LT, // <
+    TOKEN_GT, // >
+    TOKEN_EXCL, // !
+    TOKEN_AMP, // &
+    TOKEN_PIPE, // |
+    TOKEN_PREC, // %
+    TOKEN_CIRCFLEX, // ^
+    TOKEN_COLON, // :
+    TOKEN_TILDE, // ~
 
     TOKEN_LITERAL,
     TOKEN_STRING_LITERAL

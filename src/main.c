@@ -103,6 +103,18 @@ int main(int argc, char *argv[])
                 printf("(%zu): %s\n", t.size, t.data);
                 free(t.data);
                 break;
+
+            case TOKEN_LT: puts("<"); break;
+            case TOKEN_GT: puts(">"); break;
+            case TOKEN_EXCL: puts("!"); break;
+            case TOKEN_AMP: puts("&"); break;
+            case TOKEN_PIPE: puts("|"); break;
+            case TOKEN_PREC: puts("%"); break;
+            case TOKEN_CIRCFLEX: puts("^"); break;
+            case TOKEN_COLON: puts(":"); break;
+            case TOKEN_TILDE: puts("~"); break;
+
+            default: puts("<undefined>"); break;
         }
     }
 
